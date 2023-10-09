@@ -7,16 +7,19 @@ public class Ejercicio2 {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
-		int perros = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el numero de perros en valor numerico."));
+		soltarPerros soltar = new soltarPerros();
 		Thread personasT = new Thread(new Personas());
-		Thread perrosT = new Thread(new Perros(perros));
+		Thread perrosT = new Thread(new Perros(soltar));
+		Thread soltarP = new Thread(soltar);
 
 		perrosT.start();
 		personasT.start();
+		soltarP.start();
 
 		try {
 			personasT.join();
-			perrosT.join(1000);
+			perrosT.join();
+			soltarP.join();
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
@@ -29,7 +32,7 @@ class Personas implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		for (int i = 0; i <= 5; i++) {
+		for (int i = 0; i < 5; i++) {
 			System.out.println("Personas andando...");
 			try {
 				Thread.sleep(1000);
@@ -43,19 +46,17 @@ class Personas implements Runnable {
 
 class Perros implements Runnable {
 
-	private int perros;
+	private soltarPerros soltarPerros;
 
-	public Perros(int perros) {
-		this.perros = perros;
+	public Perros(soltarPerros soltarPerros) {
+		this.soltarPerros = soltarPerros;
 	}
 
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-
-		while (perros != 0) {
+		while(!soltarPerros.isSoltarPerros()) {
 			System.out.println("Perros sueltos...");
-			perros--;
 			try {
 				Thread.sleep(500);
 			} catch (Exception e) {
@@ -63,5 +64,31 @@ class Perros implements Runnable {
 				e.printStackTrace();
 			}
 		}
+	}
+}
+
+class soltarPerros implements Runnable {
+	
+	private volatile boolean soltarPerros;
+	
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		while (!soltarPerros) {
+			String opt = JOptionPane.showInputDialog("Quieres soltar a los perros?\n Y/N.").toUpperCase();
+			if ("Y".equals(opt))
+				soltarPerros = true;
+			try {
+				Thread.sleep(2600);
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+			}
+			if (soltarPerros)
+				System.out.println("Se han soltado todos los perros.");
+		}
+	}
+	public boolean isSoltarPerros() {
+		return soltarPerros;
 	}
 }
